@@ -1,18 +1,18 @@
 package com.example.safeturn;
 
+import android.annotation.SuppressLint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LinearLayout container;
-    private int viewsCount = 0;
-    private static final String STATE_VIEWS_COUNT = "viewsCount";
     private static final String TAG = MainActivity.class.getSimpleName();
+    private ViewsContainer container;
+    private TextView height;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,34 +20,26 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate" + savedInstanceState);
 
-
         container = findViewById(R.id.container);
-
-        if (savedInstanceState != null) {
-            int count = savedInstanceState.getInt(STATE_VIEWS_COUNT);
-            for (int i = 0; i < count; i++) {
-                addTextView();
-            }
-        }
+        height = findViewById(R.id.height);
 
         findViewById(R.id.button).setOnClickListener((View v) -> {
-            addTextView();
+            container.incrementViews();
+            container.getViewTreeObserver().addOnGlobalLayoutListener(LayautListener);
         });
 
+        container.getViewTreeObserver().addOnGlobalLayoutListener(LayautListener);
     }
 
-    private void addTextView() {
-        TextView textView = new TextView(MainActivity.this);
-        textView.setText(String.valueOf(viewsCount++));
-        container.addView(textView);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.d(TAG, "onSaveInstanceState");
-        outState.putInt(STATE_VIEWS_COUNT, viewsCount);
-    }
+    private ViewTreeObserver.OnGlobalLayoutListener LayautListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @SuppressLint("DefaultLocale")
+        @Override
+        public void onGlobalLayout() {
+            Log.d(TAG, "OnGlobalLayout");
+            height.setText(String.format("Высота: %d", container.getHeight()));
+            container.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        }
+    };
 
     @Override
     protected void onResume() {
