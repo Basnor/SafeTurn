@@ -4,25 +4,30 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
 
+import java.util.List;
+
 public class SavedState extends View.BaseSavedState {
-    public final int viewsCount;
+    public List<ParamsStruct> paramsList;
+
+    SavedState(Parcelable superState) {
+        super(superState);
+    }
 
     // Конструктор вызывается при восстановлении состояния
-    public SavedState(Parcel source) {
+    private SavedState(Parcel source) {
         super(source);
-        viewsCount = source.readInt();
+        paramsList = source.createTypedArrayList(ParamsStruct.CREATOR);
     }
 
     // Конструктор вызывается при сохранении состояния
-    public SavedState(Parcelable superState, int viewsCount) {
+    public SavedState(Parcelable superState, List<ParamsStruct> paramsList) {
         super(superState);
-        this.viewsCount = viewsCount;
+        this.paramsList = paramsList;
     }
 
     @Override
-    public void writeToParcel(Parcel out, int flags){
+    public void writeToParcel(Parcel out, int flags) {
         super.writeToParcel(out, flags);
-        out.writeInt(viewsCount);
+        out.writeTypedList(paramsList);
     }
-
 }
